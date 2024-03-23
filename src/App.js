@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTable } from "react-table";
+import toast, { Toaster } from "react-hot-toast";
 import Modal from "./components/Modal";
 import Pagination from "./components/Pagination";
 
@@ -40,6 +41,17 @@ function App() {
   useEffect(() => {
     fetch(`https://reqres.in/api/products?page=${page}&per_page=${per_page}`)
       .then((res) => {
+        if (res.status === 400) {
+          toast.error("400 Bad Request");
+        } else if (res.status === 404) {
+          toast.error("404 Not Found. Check if the URL is correct.");
+        } else if (res.status === 500) {
+          toast.error("500 Internal Server Error. Please try again.");
+        } else if (res.status === 502) {
+          toast.error("502 Bad Gateway");
+        } else if (res.status === 503) {
+          toast.error("503 Service Unavailable. Please try again later.");
+        }
         return res.json();
       })
       .then((data) => {
@@ -79,7 +91,11 @@ function App() {
   };
 
   return (
-    <div className="w-screen h-screen flex flex-col  relative">
+    <div className="w-screen h-screen flex flex-col relative">
+      <Toaster
+        position="top-right"
+        toastOptions={{ style: { border: "1px solid red" } }}
+      />
       <div className="mx-auto pt-8 flex space-x-2">
         <label htmlFor="id" className="self-end">
           Search by ID:
